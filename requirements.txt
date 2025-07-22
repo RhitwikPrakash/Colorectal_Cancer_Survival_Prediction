@@ -8,3 +8,4 @@ matplotlib
 seaborn
 mlflow
 kfp==2.0.1
+streamlit
