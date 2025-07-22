@@ -26,5 +26,6 @@ jobs:
 
     - name: Compile Kubeflow Pipeline
       run: |
-        python kubeflow/mlops_pipeline.py
+        python kubeflow_pipeline/mlops_pipeline.py
         echo "Pipeline compiled successfully."
+
