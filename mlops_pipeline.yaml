@@ -1,0 +1,110 @@
+# PIPELINE DEFINITION
+# Name: colorectal-cancer-survival-prediction-pipeline
+# Description: A pipeline to process data and train model
+components:
+  comp-data-processing-op:
+    executorLabel: exec-data-processing-op
+    outputDefinitions:
+      artifacts:
+        processed_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-model-training-op:
+    executorLabel: exec-model-training-op
+    inputDefinitions:
+      artifacts:
+        processed_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+deploymentSpec:
+  executors:
+    exec-data-processing-op:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - data_processing_op
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'kfp==2.0.1'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef data_processing_op(processed_data: Output[Dataset]):\n    import\
+          \ pandas as pd\n    from pathlib import Path\n\n    df = pd.DataFrame({'age':\
+          \ [65, 72], 'tumor_size': [5.4, 7.2]})\n    output_path = Path(processed_data.path)\n\
+          \    output_path.parent.mkdir(parents=True, exist_ok=True)\n    df.to_pickle(output_path)\n\
+          \n"
+        image: gonudocker/cancer-survival-prediction:latest
+    exec-model-training-op:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - model_training_op
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet     --no-warn-script-location 'kfp==2.0.1'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          python3 -m kfp.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef model_training_op(processed_data: Input[Dataset]):\n    import\
+          \ pandas as pd\n    df = pd.read_pickle(processed_data.path)\n    print(\"\
+          Training on data:\", df.head())\n\n"
+        image: gonudocker/cancer-survival-prediction:latest
+pipelineInfo:
+  description: A pipeline to process data and train model
+  name: colorectal-cancer-survival-prediction-pipeline
+root:
+  dag:
+    tasks:
+      data-processing-op:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-data-processing-op
+        taskInfo:
+          name: data-processing-op
+      model-training-op:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-model-training-op
+        dependentTasks:
+        - data-processing-op
+        inputs:
+          artifacts:
+            processed_data:
+              taskOutputArtifact:
+                outputArtifactKey: processed_data
+                producerTask: data-processing-op
+        taskInfo:
+          name: model-training-op
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.0.1

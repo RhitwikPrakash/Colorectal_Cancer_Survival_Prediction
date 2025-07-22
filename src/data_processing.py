@@ -7,6 +7,18 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.feature_selection import SelectKBest, chi2
 from src.logger import get_logger
 from src.custom_exception import CustomException
+import pickle
+# Example dummy processing
+df = pd.read_csv('artifacts/raw/data.csv')  # Or however you're loading data
+# ... processing ...
+
+# Ensure /output directory exists
+os.makedirs('/output', exist_ok=True)
+
+# Save to EXACT path expected by Kubeflow
+with open('/output/processed_data.pkl', 'wb') as f:
+    pickle.dump(df, f)
+
 
 logger = get_logger(__name__)
 

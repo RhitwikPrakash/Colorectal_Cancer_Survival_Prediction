@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.model_selection import GridSearchCV
 from src.logger import get_logger
 from src.custom_exception import CustomException
-
+import sklearn
 import mlflow
 import mlflow.sklearn
 
@@ -95,8 +95,20 @@ class ModelTraining:
         self.train_model()
         self.evaluate_model()
 
+import dagshub
+
 if __name__ == "__main__":
-    with mlflow.start_run():
+    # Initialize DagsHub client
+    dagshub.init(repo_owner='rhitwik.2005', 
+                 repo_name='Colorectal_Cancer_Survival_Prediction', 
+                 mlflow=True)
+    
+    mlflow.set_experiment("Colorectal_Cancer_Survival_Prediction")
+    
+    with mlflow.start_run() as run:
         trainer = ModelTraining()
         trainer.run()
+
+
+
     

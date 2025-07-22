@@ -7,4 +7,4 @@ joblib
 matplotlib
 seaborn
 mlflow
-kfp
+kfp==2.0.1
