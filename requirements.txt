@@ -1,11 +1,7 @@
-pandas
-numpy
-setuptools
-scikit-learn
-Flask
-joblib
-matplotlib
-seaborn
-mlflow
-kfp==2.0.1
-streamlit
+# Streamlit Community Cloud: match the versions used by the saved joblib model.
+# The full training/Kubeflow environment lives in requirements-mlops.txt.
+streamlit==1.50.0
+numpy==2.2.6
+pandas==2.2.3
+scikit-learn==1.6.1
+joblib==1.4.2

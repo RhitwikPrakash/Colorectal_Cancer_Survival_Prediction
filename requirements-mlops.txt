@@ -1,0 +1,13 @@
+# Pipeline, experiment tracking, Kubeflow and Flask/Docker dependencies.
+pandas
+numpy
+setuptools
+scikit-learn
+Flask
+joblib
+matplotlib
+seaborn
+mlflow
+kfp==2.0.1
+streamlit
+dagshub

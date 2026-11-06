@@ -21,8 +21,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
-        pip install kfp
+        pip install -r requirements-mlops.txt
 
     - name: Compile Kubeflow Pipeline
       run: |
